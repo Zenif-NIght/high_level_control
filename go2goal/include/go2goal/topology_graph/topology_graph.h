@@ -3,6 +3,7 @@
 
 #include "ros/ros.h"
 #include "geometry_msgs/Pose2D.h"
+#include "visualization_msgs/MarkerArray.h"
 
 #include <random>
 #include <map>
@@ -67,6 +68,10 @@ private:
     std::map<uint8_t, std::vector<uint8_t>> index_to_neighbors;
     std::map<uint8_t, geometry_msgs::Pose2D> index_to_point;
 
+    // Plotting variables
+    visualization_msgs::MarkerArray markers;
+    std::map<uint8_t, int> index_to_marker_id;
+
     // Assignment variables
     std::set<uint8_t> assigned_verticies;
 
@@ -79,6 +84,9 @@ private:
     void addVertexPoint(uint8_t index, double x, double y);
     void addNeighborSet(uint8_t index, std::vector<uint8_t> & neighbors);
     bool verifyIndexCorrelation();
+
+    // Visualization functions
+    void createInitialVisualizationMessages();
 };
 
 }

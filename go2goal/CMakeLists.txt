@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  visualization_msgs
   tf
 )
 
@@ -110,7 +111,7 @@ find_package(Boost REQUIRED COMPONENTS graph)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES goal2goal
-  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf
+  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs visualization_msgs tf
 #  DEPENDS system_lib
 )
 

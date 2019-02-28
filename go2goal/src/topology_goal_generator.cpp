@@ -69,6 +69,9 @@ void TopologyGoalGenerator::processAgentGoals(){
         // Publish commands
         iter->publishGoal();
     }
+
+    // Publish visualization
+    graph.publishGraph();
 }
 
 

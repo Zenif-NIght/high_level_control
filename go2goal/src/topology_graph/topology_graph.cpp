@@ -3,6 +3,8 @@
 #include <float.h>
 #include <math.h>
 
+#include <tf/tf.h>
+
 using namespace go2goal;
 
 TopologyGraph::TopologyGraph(const std::string & frame_id): frame_id(frame_id){
@@ -33,6 +35,86 @@ TopologyGraph::TopologyGraph(const std::string & frame_id): frame_id(frame_id){
     if(!verifyIndexCorrelation()){
         throw std::invalid_argument("TopologyGraph::TopologyGraph() Graph not initialized properly");
     }
+
+    // ************ Create visualization **************** //
+    pub_visualization = n.advertise<visualization_msgs::MarkerArray>("topology_graph", 1);
+    createInitialVisualizationMessages();
+}
+
+void TopologyGraph::createInitialVisualizationMessages(){
+    // ********* Visualize the vertices ******** //
+    // Create a visualization marker
+    visualization_msgs::Marker marker;
+    marker.header.stamp = ros::Time::now();
+    marker.header.frame_id = frame_id;
+    marker.ns = "topology_graph";
+    marker.type = marker.CYLINDER;
+    marker.action = marker.ADD;
+    marker.scale.x = marker.scale.y = marker.scale.z = 0.25;
+    marker.color.r = marker.color.g = 0.0;
+    marker.color.b = 255;
+    marker.color.a = 1;
+    marker.lifetime = ros::Duration(0);
+    marker.frame_locked = true;
+
+    // Initialize the marker pose
+    marker.pose.position.z = -.25;
+    marker.pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+
+
+    // Loop through vertices and add the marker (update id, pose)
+    int marker_id = 0;
+    for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
+        iter != index_to_point.end(); iter++, marker_id++) {
+        // Update the pose
+        marker.pose.position.x = iter->second.x;
+        marker.pose.position.y = iter->second.y;
+
+        // Update and store the id
+        marker.id = marker_id;
+        index_to_marker_id[iter->first] = marker_id;
+
+        // Add the marker to the marker array
+        markers.markers.push_back(marker);
+    }
+
+
+    // ********* Visualize the Lines ******** //
+    // Initialize the marker for drawing lines
+    marker.scale.x = 0.1;
+    marker.pose.position.x = marker.pose.position.y = marker.pose.position.z = 0.0;
+    marker.type = marker.LINE_STRIP;
+
+    // Loop through all points
+    for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
+        iter != index_to_point.end(); iter++) {
+
+        // Create the first point
+        geometry_msgs::Point pnt1;
+        pnt1.x = iter->second.x;
+        pnt1.y = iter->second.y;
+        pnt1.z = -.25;
+
+        // Loop through all neighbors to get the other points
+        for(std::vector<uint8_t>::iterator it_pnts = index_to_neighbors[iter->first].begin();
+            it_pnts != index_to_neighbors[iter->first].end(); it_pnts++, marker_id++) {
+            // Get the vector pointed to by the iterator
+            geometry_msgs::Point pnt2;
+            pnt2.x = index_to_point[*it_pnts].x;
+            pnt2.y = index_to_point[*it_pnts].y;
+            pnt2.z = -0.25;
+
+            // Add Points to the marker
+            marker.points.clear();
+            marker.points.push_back(pnt1);
+            marker.points.push_back(pnt2);
+
+            // Add the marker
+            marker.id = marker_id;
+            markers.markers.push_back(marker);
+        }
+    }
+
 }
 
 uint8_t TopologyGraph::getRandomNeighbor(uint8_t start_index, bool adjust_assignments){
@@ -97,6 +179,24 @@ bool TopologyGraph::getIndexPoint(uint8_t index, geometry_msgs::Pose2D & vertex_
 
 void TopologyGraph::publishGraph(){
 
+    // Update colors on the vertex markers
+    for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
+        iter != index_to_point.end(); iter++) {
+        // Get the marker id index
+        size_t id = static_cast<size_t>(index_to_marker_id[iter->first]);
+
+        // Check to see if the index is in the assigned verties
+        if(assigned_verticies.find(iter->first) == assigned_verticies.end()) { // Not found
+            markers.markers[id].color.b = 255;
+            markers.markers[id].color.r = 0.0;
+        } else { // vertex assigned
+            markers.markers[id].color.b = 0.0;
+            markers.markers[id].color.r = 255;
+        }
+    }
+
+
+    pub_visualization.publish(markers);
 }
 
 uint8_t TopologyGraph::calculateRandomNumber(uint8_t min_val, uint8_t max_val){
