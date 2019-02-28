@@ -1,35 +1,20 @@
 #include "ros/ros.h"
 
-#include <boost/graph/graph_traits.hpp>
-#include <boost/graph/adjacency_list.hpp>
+#include "go2goal/topology_graph/topology_graph.h"
+#include "geometry_msgs/Pose2D.h"
 
+#include <string>
+#include <sstream>
 
-//int createGraph()
-//{
-//// create a typedef for the Graph type
-//typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-
-//// Make convenient labels for the vertices
-//enum { A, B, C, D, E, N };
-//const int num_vertices = N;
-//const char* name = "ABCDE";
-
-//// writing out the edges in the graph
-//typedef std::pair<int, int> Edge;
-//Edge edge_array[] =
-//{ Edge(A,B), Edge(A,D), Edge(C,A), Edge(D,C),
-//  Edge(C,E), Edge(B,D), Edge(D,E) };
-//const int num_edges = sizeof(edge_array)/sizeof(edge_array[0]);
-
-//// declare a graph object
-//Graph g(num_vertices);
-
-//// add the edges to the graph object
-//for (int i = 0; i < num_edges; ++i)
-//  add_edge(edge_array[i].first, edge_array[i].second, g);
-
-//return 0;
-//}
+std::string outputAssignemnts(go2goal::TopologyGraph & graph) {
+    std::vector<uint8_t> values;
+    graph.getAssignedIndices(values);
+    std::stringstream assignemnts;
+    for(std::vector<uint8_t>::iterator iter = values.begin(); iter != values.end(); iter++) {
+        assignemnts << static_cast<int>(*iter) << ",";
+    }
+    return assignemnts.str();
+}
 
 int main(int argc, char* argv[])
 {
@@ -37,19 +22,25 @@ int main(int argc, char* argv[])
   ros::NodeHandle nh;
 
   // Create a graph
-  typedef std::pair<int, int> Edge;
-
-
-  const int num_vertices = 5;
-
+  go2goal::TopologyGraph graph("map");
+  uint8_t prev_index = 0;
 
   ros::Rate loop_rate(1);
+  ROS_INFO_STREAM("Index = " << static_cast<int>(prev_index));
 
   // Publish goal
   while (ros::ok())
   {
-    ros::spinOnce();
-    loop_rate.sleep();
+      uint8_t index = graph.getRandomNeighbor(prev_index);
+      geometry_msgs::Pose2D point;
+      graph.getIndexPoint(index, point);
+      ROS_INFO_STREAM("Transition: " << static_cast<int>(prev_index) << "-->" << static_cast<int>(index)
+                      << " Position = (" << point.x << ", " << point.y << "). Assigned: " << outputAssignemnts(graph));
+      prev_index = index;
+
+      // Pause
+      ros::spinOnce();
+      loop_rate.sleep();
   }
 
   return 0;
