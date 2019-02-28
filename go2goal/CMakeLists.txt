@@ -141,7 +141,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(rand_goal_generator src/rand_goal_generator.cpp)
 
-add_executable(test_graph src/test_graph.cpp)
+add_executable(test_graph src/test_graph.cpp src/topology_graph/topology_graph.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
