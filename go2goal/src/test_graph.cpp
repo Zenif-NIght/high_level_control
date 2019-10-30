@@ -10,7 +10,7 @@ std::string outputAssignemnts(go2goal::TopologyGraph & graph) {
     std::vector<uint8_t> values;
     graph.getAssignedIndices(values);
     std::stringstream assignemnts;
-    for(std::vector<uint8_t>::iterator iter = values.begin(); iter != values.end(); iter++) {
+    for(std::vector<uint8_t>::iterator iter = values.begin(); iter != values.end(); ++iter) {
         assignemnts << static_cast<int>(*iter) << ",";
     }
     return assignemnts.str();

@@ -16,7 +16,7 @@ void TopologyGoalGenerator::processTopics(){
     ros::master::getTopics(master_topics);
 
     std::string output = "\n";
-    for(ros::master::V_TopicInfo::iterator it = master_topics.begin(); it != master_topics.end(); it++)
+    for(ros::master::V_TopicInfo::iterator it = master_topics.begin(); it != master_topics.end(); ++it)
     {
         const ros::master::TopicInfo& info = *it;
         std::string namespace_in = "";
@@ -62,7 +62,7 @@ bool TopologyGoalGenerator::extractTopicNamespace(const std::string & topic_inpu
 
 void TopologyGoalGenerator::processAgentGoals(){
     // Loop through each agent controller
-    for(std::vector<TopologyAgent>::iterator iter = agent_controllers.begin(); iter != agent_controllers.end(); iter++) {
+    for(std::vector<TopologyAgent>::iterator iter = agent_controllers.begin(); iter != agent_controllers.end(); ++iter) {
         // Create new goals
         iter->generateNewGoal();
 

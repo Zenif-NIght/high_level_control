@@ -36,7 +36,7 @@ void TopologyAgent::generateNewGoal(bool force){
 
     // Determine whether or not to get a new goal
     bool getNewGoal = force;
-    double dist = -1.0;
+    
     if(!getNewGoal) { // Check distance to see if close enough to goal
         // Get the current position of the vehicle
         geometry_msgs::Pose2D pose;
@@ -46,6 +46,7 @@ void TopologyAgent::generateNewGoal(bool force){
         }
 
         // Calculate distance to the goal
+        double dist;
         double del_x = pose.x - current_goal.x;
         double del_y = pose.y - current_goal.y;
         dist = std::sqrt(del_x*del_x + del_y*del_y);
@@ -116,7 +117,7 @@ bool TopologyAgent::get2DTransformedPose(geometry_msgs::Pose2D & pose){
         tf_listener.waitForTransform(graph.frame_id,odom->header.frame_id, odom->header.stamp,ros::Duration(0.5));
         tf_listener.transformPose(graph.frame_id, pose_odom, pose3d);
     }
-    catch(tf::TransformException ex) {
+    catch(const tf::TransformException &ex) {
         ROS_ERROR("TopologyAgent::get2DTransformedPose() %s", ex.what());
         return false;
     }

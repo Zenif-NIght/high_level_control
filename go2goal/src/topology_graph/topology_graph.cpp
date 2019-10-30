@@ -65,7 +65,7 @@ void TopologyGraph::createInitialVisualizationMessages(){
     // Loop through vertices and add the marker (update id, pose)
     int marker_id = 0;
     for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
-        iter != index_to_point.end(); iter++, marker_id++) {
+        iter != index_to_point.end(); ++iter, ++marker_id) {
         // Update the pose
         marker.pose.position.x = iter->second.x;
         marker.pose.position.y = iter->second.y;
@@ -87,7 +87,7 @@ void TopologyGraph::createInitialVisualizationMessages(){
 
     // Loop through all points
     for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
-        iter != index_to_point.end(); iter++) {
+        iter != index_to_point.end(); ++iter) {
 
         // Create the first point
         geometry_msgs::Point pnt1;
@@ -97,7 +97,7 @@ void TopologyGraph::createInitialVisualizationMessages(){
 
         // Loop through all neighbors to get the other points
         for(std::vector<uint8_t>::iterator it_pnts = index_to_neighbors[iter->first].begin();
-            it_pnts != index_to_neighbors[iter->first].end(); it_pnts++, marker_id++) {
+            it_pnts != index_to_neighbors[iter->first].end(); ++it_pnts, ++marker_id) {
             // Get the vector pointed to by the iterator
             geometry_msgs::Point pnt2;
             pnt2.x = index_to_point[*it_pnts].x;
@@ -151,7 +151,7 @@ uint8_t TopologyGraph::getClosestVertex(const geometry_msgs::Pose2D & position, 
     uint8_t index_closest = 0;
 
     // Loop through the possible vertex points to get the closest points
-    for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin(); iter != index_to_point.end(); iter++) {
+    for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin(); iter != index_to_point.end(); ++iter) {
         double del_x = position.x - iter->second.x;
         double del_y = position.y - iter->second.y;
         double dist_tmp = std::sqrt(del_x*del_x + del_y*del_y);
@@ -181,7 +181,7 @@ void TopologyGraph::publishGraph(){
 
     // Update colors on the vertex markers
     for(std::map<uint8_t, geometry_msgs::Pose2D>::iterator iter = index_to_point.begin();
-        iter != index_to_point.end(); iter++) {
+        iter != index_to_point.end(); ++iter) {
         // Get the marker id index
         size_t id = static_cast<size_t>(index_to_marker_id[iter->first]);
 
@@ -226,14 +226,14 @@ bool TopologyGraph::verifyIndexCorrelation(){
 
     // Loop through each agent to get the neighborhood
     for(std::map<uint8_t, std::vector<uint8_t>>::iterator iter = index_to_neighbors.begin();
-        iter != index_to_neighbors.end(); iter++) {
+        iter != index_to_neighbors.end(); ++iter) {
         // Check to see if the key is also in the index_to_point map
         if(!isValidIndex(iter->first))
             return false;
 
         // Iterate through all indices of the neighbors to check for valid neighbors
         for(std::vector<uint8_t>::iterator it_neigh = iter->second.begin();
-            it_neigh != iter->second.end(); it_neigh++) {
+            it_neigh != iter->second.end(); ++it_neigh) {
             // Check to see if the neighbor is a key in index_to_point map
             if(!isValidIndex(*it_neigh))
                 return false;
@@ -244,7 +244,7 @@ bool TopologyGraph::verifyIndexCorrelation(){
 
 void TopologyGraph::getAssignedIndices(std::vector<uint8_t> & indices){
     indices.clear();
-    for(std::set<uint8_t>::iterator iter = assigned_verticies.begin(); iter != assigned_verticies.end(); iter++) {
+    for(std::set<uint8_t>::iterator iter = assigned_verticies.begin(); iter != assigned_verticies.end(); ++iter) {
         indices.push_back(*iter);
     }
 }

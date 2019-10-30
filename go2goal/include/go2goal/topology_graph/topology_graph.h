@@ -16,7 +16,7 @@ namespace go2goal
 class TopologyGraph
 {
 public:
-    TopologyGraph(const std::string & frame_id);
+    explicit TopologyGraph(const std::string & frame_id);
 
 public:
 
