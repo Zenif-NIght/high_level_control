@@ -27,11 +27,11 @@ private:
   double dist_to_change;  // Once vehicle is within this distance then the goal will be updated
 
   // Agent state variables
+  uint8_t goal_index;
+  bool goal_calculated;
   geometry_msgs::Pose2D current_goal;  // 2D goal
   geometry_msgs::PoseStamped goal;     // Goal message to be published
-  uint8_t goal_index;
   nav_msgs::Odometry::ConstPtr odom;
-  bool goal_calculated;
 
   // ROS variables
   ros::NodeHandle n;
@@ -40,8 +40,8 @@ private:
   tf::TransformListener tf_listener;
 
   // Topic variables
-  const std::string goal_topic;
   const std::string odom_topic;
+  const std::string goal_topic;
 
   void generateInitialGoal();
   bool get2DTransformedPose(geometry_msgs::Pose2D& pose);
