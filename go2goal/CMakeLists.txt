@@ -14,11 +14,13 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  visualization_msgs
   tf
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS graph)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -109,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES goal2goal
-  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf
+  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs visualization_msgs tf
 #  DEPENDS system_lib
 )
 
@@ -121,6 +123,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -139,6 +142,10 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(rand_goal_generator src/rand_goal_generator.cpp)
 
+add_executable(test_graph src/test_graph.cpp src/topology_graph/topology_graph.cpp)
+
+add_executable(topology_goal_generator src/topology_goal_generator.cpp src/topology_graph/topology_graph.cpp src/topology_graph/topology_agent.cpp)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -153,6 +160,15 @@ add_executable(rand_goal_generator src/rand_goal_generator.cpp)
  target_link_libraries(rand_goal_generator
    ${catkin_LIBRARIES}
  )
+
+target_link_libraries(test_graph
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES}
+)
+
+target_link_libraries(topology_goal_generator
+  ${catkin_LIBRARIES} ${Boost_LIBRARIES}
+)
+
 
 #############
 ## Install ##
